@@ -1,6 +1,6 @@
 <h1>Startup HTML template</h1>
 
-<p>This is Startup HTML template based on Gulp. Cross-browsers compatibility IE10+.</p>
+<p>This is Startup HTML template based on Gulp. Cross-browsers compatibility IE9+.</p>
 
 <h2>This tempate uses: </h2>
 <ul>
@@ -13,5 +13,7 @@
   <li>SVG-Sprite</li>
   <li>Rsync</li>
 </ul>
+
+
 
 
