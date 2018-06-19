@@ -29,5 +29,13 @@
     "clean-css": "^4.1.9",
     "gulp": "^3.9.1",
     "rename": "^1.0.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Artavans/template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Artavans/template/issues"
+  },
+  "homepage": "https://github.com/Artavans/template#readme"
 }

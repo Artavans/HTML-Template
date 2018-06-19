@@ -13,8 +13,14 @@ var gulp           = require('gulp'),
 		ftp            = require('vinyl-ftp'),
 		notify         = require("gulp-notify"),
 		rsync          = require('gulp-rsync');
+		svgSprite      = require('gulp-svg-sprite'),
+    svgmin         = require('gulp-svgmin');
+    cheerio        = require('gulp-cheerio'),
+	  replace        = require('gulp-replace');
 
-// Пользовательские скрипты проекта
+
+
+//scripts
 
 gulp.task('common-js', function() {
 	return gulp.src([
@@ -36,6 +42,25 @@ gulp.task('js', ['common-js'], function() {
 	.pipe(browserSync.reload({stream: true}));
 });
 
+
+
+//less
+
+gulp.task('less', function () {
+  return gulp.src('./app/less/styles.less')
+  .pipe(less())
+  .pipe(concat('common.css'))
+  .pipe(autoprefixer(['last 15 versions']))
+  .pipe(cleanCSS())  
+  .pipe(rename({suffix: ".min"}))
+  .pipe(gulp.dest('./app/css/'))
+  .pipe(browserSync.reload({stream: true}));
+});
+
+
+
+//BrowserSync, watch
+
 gulp.task('browser-sync', function() {
 	browserSync({
 		server: {
@@ -47,27 +72,53 @@ gulp.task('browser-sync', function() {
 	});
 });
 
-gulp.task('less', function () {
-gulp.src('./app/less/styles.less')
-  .pipe(less())
-  .pipe(concat('common.css'))
-  .pipe(cleanCSS())  
-  .pipe(rename({suffix: ".min"}))
-  .pipe(gulp.dest('./app/css/'));
-});
-
-
 gulp.task('watch', ['less', 'js', 'browser-sync'], function() {
 	gulp.watch('app/less/**/*.less', ['less']);
 	gulp.watch(['libs/**/*.js', 'app/js/common.js'], ['js']);
 	gulp.watch('app/*.html', browserSync.reload);
 });
 
+
+
+//Graphics
+
 gulp.task('imagemin', function() {
 	return gulp.src('app/img/**/*')
 	.pipe(cache(imagemin()))
 	.pipe(gulp.dest('dist/img')); 
 });
+
+gulp.task('svg', function () {
+	return gulp.src('./app/img/icons/**/*.svg')
+	.pipe(svgmin({
+		js2svg: {
+			pretty: true
+		}
+	}))
+	.pipe(cheerio({
+	  run: function ($) {
+		  $('[fill]').removeAttr('fill');
+		  $('[stroke]').removeAttr('stroke');
+		  $('[style]').removeAttr('style');
+	  },
+	  parserOptions: {xmlMode: true}
+  }))
+  .pipe(replace('&gt;', '>'))
+  .pipe(svgSprite({
+  	mode: {
+      symbol: {
+        render: {
+          less: true
+        }
+      }
+    } 
+  }))
+  .pipe(gulp.dest('./app/img/sprite/'));
+})
+
+
+
+//Build
 
 gulp.task('build', ['removedist', 'imagemin', 'less', 'js'], function() {
 
@@ -90,6 +141,10 @@ gulp.task('build', ['removedist', 'imagemin', 'less', 'js'], function() {
 		]).pipe(gulp.dest('dist/fonts'));
 
 });
+
+
+
+//Deploy
 
 gulp.task('deploy', function() {
 
